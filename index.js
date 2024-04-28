@@ -9,7 +9,6 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const db_url = process.env.DB_URL || 'mongodb://127.0.0.1:27017/QR-code-project';
 const { isLoggedIn } = require('./middlewares/auth');
-const { QR_generator } = require('./helpers/QR_generator');
 const QRCode = require('qrcode');
 
 mongoose.connect(db_url)
@@ -39,7 +38,6 @@ app.use(passport.session());
 
 app.use((req, res, next) => {
     res.locals.user = req.user;
-    console.log(req.user);
     next();
 })
 
@@ -57,9 +55,8 @@ app.get('/', isLoggedIn, async (req, res) => {
             Phone: ${user.phone},
             Course: ${user.course},
             Address: ${user.address},
-        `
+        `;
         const url= await QRCode.toDataURL(message);
-        console.log(url)
         res.render('home', { self: user, url });
     }
 })
