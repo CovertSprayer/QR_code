@@ -1,27 +1,21 @@
 const router = require('express').Router();
+const passport = require('passport');
 const User = require('../models/User.model');
 
 router.get('/login', (req, res) => {
     res.render('login');
 })
 
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email: email });
-    if (!user) {
-        return res.send('User not found!')
-    }
+router.post('/login', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login'
+}))
 
-    if (user.password !== password) {
-        return res.send('Invalid Credentials!');
-    }
-
-    if (user.role === 'admin') {
-        
-        return res.redirect('/')
-    }
-
-    res.redirect('/');
-})
+router.get('/logout', (req, res, next) => {
+    req.logout(function(err) {
+        if (err) { return next(err); }
+        res.redirect('/login');
+    });
+});
 
 module.exports = router;
